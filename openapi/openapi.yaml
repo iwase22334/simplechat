@@ -45,8 +45,8 @@ externalDocs:
 tags:
   - name: Chat
     description: Chat interface
-  - name: User
-    description: Operations about user
+  - name: Auth
+    description: Operations about authentication
 servers:
   - url: 'http://example.com/api/v1'
   - url: 'https://example.com/api/v1'
@@ -54,97 +54,26 @@ servers:
 # Holds the relative paths to the individual endpoints. The path is appended to the
 # basePath in order to construct the full URL. 
 paths:
-  '/users/{username}': # path parameter in curly braces
-
-    # parameters list that are used with each operation for this path
-    parameters:
-      - name: pretty_print
-        in: query
-        description: Pretty print response
-        schema:
-          type: boolean
-    get: # documentation for GET operation for this path
-      tags:
-        - User
-      
-      # summary is up to 120 symbold but we recommend to be shortest as possible
-      summary: Get user by user name
-      
-      # you can use GFM in operation description too: https://guides.github.com/features/mastering-markdown
-      description: |
-        Some description of the operation. 
-        You can use `markdown` here.
-      
-      # operationId should be unique across the whole specification
-      operationId: getUserByName
-      
-      # list of parameters for the operation
-      parameters:
-        - name: username
-          in: path
-          description: The name that needs to be fetched
-          required: true
-          schema:
-            type: string
-        - name: with_email
-          in: query
-          description: Filter users without email
-          schema:
-            type: boolean
-      
-      # security schemas applied to this operation
-      security:
-        - main_auth:
-            - 'read:users' # for oauth2 provide list of scopes here
-        - api_key: []
-      responses: # list of responses
-        '200':
-          description: Success
-          content:
-            application/json: # operation response mime type
-              schema: # response schema can be specified for each response
-                $ref: '#/components/schemas/User'
-              example: # response example
-                username: user1
-                email: user@example.com
-        '403':
-          description: Forbidden
-        '404':
-          description: User not found
+  '/auth/login': # path parameter in curly braces
     # documentation for PUT operation for this path
-    put:
+    post:
       tags:
-        - User
-      summary: Updated user
-      description: This can only be done by the logged in user.
-      operationId: updateUser
-      parameters:
-        - name: username
-          in: path
-          description: The name that needs to be updated
-          required: true
-          schema:
-            type: string
-      security:
-        - main_auth:
-            - 'write:users'
+        - Auth
+      summary: User to login
+      description: Authenticate user.
+      operationId: login
       responses:
         '200':
           description: OK
         '400':
-          description: Invalid user supplied
-        '404':
-          description: User not found
+          description: BadRequest
       # request body documentation
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/User'
-        description: Updated user object
+              $ref: '#/components/schemas/UserAuthentication'
+        description: Authenticate user
         required: true
   /{room_id}/websocket: # path parameter in curly braces
     post: # documentation for POST operation for this path
@@ -161,8 +90,7 @@ paths:
           schema:
             type: string
       security:
-        - api_key: []
-        - basic_auth: []
+        - jwt: []
       responses:
         '201':
           description: OK
@@ -173,31 +101,16 @@ paths:
 # An object to hold reusable parts that can be used across the definition
 components:
   schemas:
-    Email:
-      description: User email address
-      type: string
-      format: test
-      example: john.smith@example.com
-    User:
+    UserAuthentication:
       type: object
+      required:
+        - user_id
+        - password
       properties:
-        username:
-          description: User supplied username
+        user_id:
           type: string
-          minLength: 4
-          example: John78
-        firstName:
-          description: User first name
+        password:
           type: string
-          minLength: 1
-          example: John
-        lastName:
-          description: User last name
-          type: string
-          minLength: 1
-          example: Smith
-        email:
-          $ref: '#/components/schemas/Email'
   headers:
     ExpiresAfter:
       description: date in UTC when token expires
@@ -206,20 +119,7 @@ components:
         format: date-time
   # Security scheme definitions that can be used across the definition.
   securitySchemes:
-    main_auth: # security definition name (you can name it as you want)
-      # the following options are specific to oauth2 type
-      type: oauth2 # authorization type, one of: oauth2, apiKey, http
-      flows:
-        implicit:
-          authorizationUrl: 'http://example.com/api/oauth/dialog'
-          scopes:
-            'read:users': read users info
-            'write:users': modify or remove users
-    api_key:  # security definition name (you can name it as you want)
-      type: apiKey 
-      # The following options are specific to apiKey type
-      in: header # Where API key will be passed: header or query
-      name: api_key # API key parameter name
-    basic_auth: # security definition name (you can name it as you want)
+    jwt:
       type: http
-      scheme: basic
+      scheme: bearer
+      bearerFormat: JWT
