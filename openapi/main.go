@@ -21,10 +21,11 @@ import (
 
 func main() {
 	routes := sw.ApiHandleFunctions{}
+	authRepo := sw.LocalUserAuthRepository{}
 
 	log.Printf("Server started")
 
-	router := sw.NewRouter(routes)
+	router := sw.NewRouter(routes, authRepo)
 
 	log.Fatal(router.Run(":8080"))
 }
