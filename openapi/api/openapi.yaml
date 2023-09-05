@@ -1,0 +1,109 @@
+openapi: 3.0.2
+info:
+  contact:
+    email: contact@example.com
+    url: http://example.com/contact
+  description: "This is an **example** API to demonstrate features of OpenAPI specification\n\
+    # Introduction\nThis API definition is intended to to be a good starting point\
+    \ for describing your API in \n[OpenAPI/Swagger format](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md).\n\
+    It also demonstrates features of [create-openapi-repo](https://github.com/Redocly/create-openapi-repo)\
+    \ tool and \n[Redoc](https://github.com/Redocly/Redoc) documentation engine. So\
+    \ beyond the standard OpenAPI syntax we use a few \n[vendor extensions](https://github.com/Redocly/Redoc/blob/master/docs/redoc-vendor-extensions.md).\n\
+    \n# OpenAPI Specification\nThe goal of The OpenAPI Specification is to define\
+    \ a standard, language-agnostic interface to REST APIs which\nallows both humans\
+    \ and computers to discover and understand the capabilities of the service without\
+    \ access to source\ncode, documentation, or through network traffic inspection.\
+    \ When properly defined via OpenAPI, a consumer can \nunderstand and interact\
+    \ with the remote service with a minimal amount of implementation logic. Similar\
+    \ to what\ninterfaces have done for lower-level programming, OpenAPI removes the\
+    \ guesswork in calling the service.\n"
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://example.com/terms/
+  title: Example.com
+  version: 1.0.0
+  x-logo:
+    url: https://redocly.github.io/openapi-template/logo.png
+externalDocs:
+  description: Find out how to create a GitHub repo for your OpenAPI definition.
+  url: https://github.com/Rebilly/generator-openapi-repo
+servers:
+- url: http://example.com/api/v1
+- url: https://example.com/api/v1
+tags:
+- description: Chat interface
+  name: Chat
+- description: Operations about authentication
+  name: Auth
+paths:
+  /auth/login:
+    post:
+      description: Authenticate user.
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAuthentication'
+        description: Authenticate user
+        required: true
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: BadRequest
+      summary: User to login
+      tags:
+      - Auth
+  /{room_id}/websocket:
+    get:
+      description: Connect to the websocket
+      operationId: websocket
+      parameters:
+      - description: The id that needs to be fetched
+        explode: false
+        in: path
+        name: room_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "201":
+          description: OK
+        "404":
+          description: ChatRoom Not found
+      security:
+      - jwt: []
+      summary: ChatRoom endpoint to connecting websocket.
+      tags:
+      - Chat
+components:
+  headers:
+    ExpiresAfter:
+      description: date in UTC when token expires
+      explode: false
+      schema:
+        format: date-time
+        type: string
+      style: simple
+  schemas:
+    UserAuthentication:
+      example:
+        password: password
+        user_id: user_id
+      properties:
+        user_id:
+          type: string
+        password:
+          type: string
+      required:
+      - password
+      - user_id
+      type: object
+  securitySchemes:
+    jwt:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http

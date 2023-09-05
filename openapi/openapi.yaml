@@ -76,12 +76,12 @@ paths:
         description: Authenticate user
         required: true
   /{room_id}/websocket: # path parameter in curly braces
-    post: # documentation for POST operation for this path
+    get: # documentation for POST operation for this path
       tags:
         - Chat
       summary: ChatRoom endpoint to connecting websocket.
       description: Connect to the websocket
-      operationId: echo
+      operationId: websocket
       parameters:
         - name: room_id
           in: path
