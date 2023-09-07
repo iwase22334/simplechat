@@ -25,6 +25,8 @@ type Route struct {
 	// Pattern is the pattern of the URI.
 	Pattern string
 	// HandlerFunc is the handler function of this route.
+	Middleware gin.HandlerFunc
+	// HandlerFunc is the handler function of this route.
 	HandlerFunc gin.HandlerFunc
 }
 
@@ -32,6 +34,9 @@ type Route struct {
 func NewRouter(handleFunctions ApiHandleFunctions, authRepository UserAuthRepository) *gin.Engine {
 	router := gin.Default()
 	for _, route := range getRoutes(handleFunctions, authRepository) {
+		if route.Middleware != nil {
+			router.Use(route.Middleware)
+		}
 		if route.HandlerFunc == nil {
 			route.HandlerFunc = DefaultHandleFunc
 		}
@@ -72,12 +77,14 @@ func getRoutes(handleFunctions ApiHandleFunctions, authRepository UserAuthReposi
 			"Login",
 			http.MethodPost,
 			"/api/v1/auth/login",
+			nil,
 			NewAuthAPI(authRepository).Login,
 		},
 		{
 			"Websocket",
 			http.MethodGet,
 			"/api/v1/:room_id/websocket",
+			nil,
 			handleFunctions.ChatAPI.Websocket,
 		},
 	}
