@@ -72,7 +72,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserAuthentication'
+              $ref: '#/components/schemas/UserAuth'
         description: Authenticate user
         required: true
   /{room_id}/websocket: # path parameter in curly braces
@@ -101,7 +101,7 @@ paths:
 # An object to hold reusable parts that can be used across the definition
 components:
   schemas:
-    UserAuthentication:
+    UserAuth:
       type: object
       required:
         - user_id

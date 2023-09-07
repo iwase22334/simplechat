@@ -45,7 +45,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserAuthentication'
+              $ref: '#/components/schemas/UserAuth'
         description: Authenticate user
         required: true
       responses:
@@ -89,7 +89,7 @@ components:
         type: string
       style: simple
   schemas:
-    UserAuthentication:
+    UserAuth:
       example:
         password: password
         user_id: user_id

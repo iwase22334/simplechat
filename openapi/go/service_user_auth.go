@@ -15,7 +15,7 @@ type UserAuthRepository interface {
 	findHashedPasswordFromID(data string) (string, error)
 }
 
-func Authenticate(uar UserAuthRepository, ua UserAuthentication) bool {
+func Authenticate(uar UserAuthRepository, ua UserAuth) bool {
 	hPassword, err := uar.findHashedPasswordFromID(ua.UserId)
 	if err != nil {
 		fmt.Println(err)
