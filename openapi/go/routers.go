@@ -13,6 +13,7 @@ package openapi
 import (
 	"net/http"
 
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 )
 
@@ -31,9 +32,9 @@ type Route struct {
 }
 
 // NewRouter returns a new router.
-func NewRouter(handleFunctions ApiHandleFunctions, authRepository UserAuthRepository) *gin.Engine {
+func NewRouter(handleFunctions ApiHandleFunctions, mid *jwt.GinJWTMiddleware) *gin.Engine {
 	router := gin.Default()
-	for _, route := range getRoutes(handleFunctions, authRepository) {
+	for _, route := range getRoutes(handleFunctions, mid) {
 		if route.Middleware != nil {
 			router.Use(route.Middleware)
 		}
@@ -63,28 +64,26 @@ func DefaultHandleFunc(c *gin.Context) {
 }
 
 type ApiHandleFunctions struct {
-
 	// Routes for the AuthAPI part of the API
 	AuthAPI AuthAPI
 	// Routes for the ChatAPI part of the API
 	ChatAPI ChatAPI
 }
 
-func getRoutes(handleFunctions ApiHandleFunctions, authRepository UserAuthRepository) []Route {
+func getRoutes(handleFunctions ApiHandleFunctions, mid *jwt.GinJWTMiddleware) []Route {
 	return []Route{
-
 		{
 			"Login",
 			http.MethodPost,
 			"/api/v1/auth/login",
 			nil,
-			NewAuthAPI(authRepository).Login,
+			mid.LoginHandler,
 		},
 		{
 			"Websocket",
 			http.MethodGet,
 			"/api/v1/:room_id/websocket",
-			nil,
+			mid.MiddlewareFunc(),
 			handleFunctions.ChatAPI.Websocket,
 		},
 	}

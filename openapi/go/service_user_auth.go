@@ -16,7 +16,7 @@ type UserAuthRepository interface {
 }
 
 func Authenticate(uar UserAuthRepository, ua UserAuth) bool {
-	hPassword, err := uar.findHashedPasswordFromID(ua.UserId)
+	hPassword, err := uar.findHashedPasswordFromID(ua.UserID)
 	if err != nil {
 		fmt.Println(err)
 		return false

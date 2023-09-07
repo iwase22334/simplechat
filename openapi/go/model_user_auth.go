@@ -11,7 +11,7 @@
 package openapi
 
 type UserAuth struct {
-	UserId string `json:"user_id"`
+	UserID string `json:"user_id"`
 
 	Password string `json:"password"`
 }

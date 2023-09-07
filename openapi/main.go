@@ -22,10 +22,11 @@ import (
 func main() {
 	routes := sw.ApiHandleFunctions{}
 	authRepo := sw.LocalUserAuthRepository{}
+	middleware := sw.NewJwtMiddleware(authRepo)
 
 	log.Printf("Server started")
 
-	router := sw.NewRouter(routes, authRepo)
+	router := sw.NewRouter(routes, middleware)
 
 	log.Fatal(router.Run(":8080"))
 }
