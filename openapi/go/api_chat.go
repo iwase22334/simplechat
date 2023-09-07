@@ -11,7 +11,11 @@
 package openapi
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
 type ChatAPI struct {
@@ -20,6 +24,37 @@ type ChatAPI struct {
 	Websocket gin.HandlerFunc
 }
 
-func WebsocketHandler(c *gin.Context) {
+func WebsocketHandler() gin.HandlerFunc {
+	var upgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		CheckOrigin: func(r *http.Request) bool {
+			origin := r.Header.Get("Origin")
 
+			fmt.Println("origin:", origin)
+			return origin == "http://localhost:3000"
+		},
+	}
+
+	fn := func(c *gin.Context) {
+		id := c.Param("room_id")
+		fmt.Println("room_id:", id)
+
+		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+		if err != nil {
+			fmt.Println("failed to connect to server", err)
+			return
+		}
+		defer conn.Close()
+		ChatEcho(conn)
+
+	}
+
+	return fn
+}
+
+func NewChatAPI() ChatAPI {
+	return ChatAPI{
+		Websocket: WebsocketHandler(),
+	}
 }

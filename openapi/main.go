@@ -20,9 +20,14 @@ import (
 )
 
 func main() {
-	routes := sw.ApiHandleFunctions{}
 	authRepo := sw.LocalUserAuthRepository{}
 	middleware := sw.NewJwtMiddleware(authRepo)
+	routes := sw.ApiHandleFunctions{
+		AuthAPI: sw.AuthAPI{
+			Login: middleware.LoginHandler,
+		},
+		ChatAPI: sw.NewChatAPI(),
+	}
 
 	log.Printf("Server started")
 

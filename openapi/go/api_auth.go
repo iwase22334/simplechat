@@ -11,9 +11,6 @@
 package openapi
 
 import (
-	"fmt"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,36 +20,36 @@ type AuthAPI struct {
 	Login gin.HandlerFunc
 }
 
-func LoginHandler(r UserAuthRepository) gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		var ua UserAuth
-		if err := c.ShouldBindJSON(&ua); err == nil {
-			fmt.Println("context body", ua)
-
-			if Authenticate(r, ua) {
-				c.JSON(http.StatusOK, gin.H{
-					"message": "Login successful",
-				})
-
-			} else {
-				c.JSON(http.StatusBadRequest, gin.H{
-					"message": "failed to login",
-				})
-			}
-
-		} else {
-			fmt.Println("failed to convert", err)
-			c.JSON(http.StatusBadRequest, gin.H{
-				"message": "failed to login",
-			})
-		}
-	}
-
-	return fn
-}
-
-func NewAuthAPI(r UserAuthRepository) AuthAPI {
-	return AuthAPI{
-		Login: LoginHandler(r),
-	}
-}
+//func LoginHandler(r UserAuthRepository) gin.HandlerFunc {
+//	fn := func(c *gin.Context) {
+//		var ua UserAuth
+//		if err := c.ShouldBindJSON(&ua); err == nil {
+//			fmt.Println("context body", ua)
+//
+//			if Authenticate(r, ua) {
+//				c.JSON(http.StatusOK, gin.H{
+//					"message": "Login successful",
+//				})
+//
+//			} else {
+//				c.JSON(http.StatusBadRequest, gin.H{
+//					"message": "failed to login",
+//				})
+//			}
+//
+//		} else {
+//			fmt.Println("failed to convert", err)
+//			c.JSON(http.StatusBadRequest, gin.H{
+//				"message": "failed to login",
+//			})
+//		}
+//	}
+//
+//	return fn
+//}
+//
+//func NewAuthAPI(r UserAuthRepository) AuthAPI {
+//	return AuthAPI{
+//		Login: LoginHandler(r),
+//	}
+//}

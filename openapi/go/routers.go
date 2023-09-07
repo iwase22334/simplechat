@@ -77,7 +77,7 @@ func getRoutes(handleFunctions ApiHandleFunctions, mid *jwt.GinJWTMiddleware) []
 			http.MethodPost,
 			"/api/v1/auth/login",
 			nil,
-			mid.LoginHandler,
+			handleFunctions.AuthAPI.Login,
 		},
 		{
 			"Websocket",
