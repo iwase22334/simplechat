@@ -1,7 +1,9 @@
 package openapi
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
@@ -23,6 +25,7 @@ func NewJwtMiddleware(authRepo UserAuthRepository) *jwt.GinJWTMiddleware {
 		MaxRefresh:  24 * time.Hour,
 		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
+			fmt.Println("PayloadFunc")
 			if v, ok := data.(*User); ok {
 				return jwt.MapClaims{
 					identityKey: v.UserID,
@@ -31,6 +34,7 @@ func NewJwtMiddleware(authRepo UserAuthRepository) *jwt.GinJWTMiddleware {
 			return jwt.MapClaims{}
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
+			fmt.Println("IdentityHandler")
 			claims := jwt.ExtractClaims(c)
 			return &User{
 				UserID: claims[identityKey].(string),
@@ -42,6 +46,7 @@ func NewJwtMiddleware(authRepo UserAuthRepository) *jwt.GinJWTMiddleware {
 				return "", jwt.ErrMissingLoginValues
 			}
 
+			fmt.Println("Authenticator", loginVals)
 			if Authenticate(authRepo, loginVals) {
 				return &User{
 					UserID: loginVals.UserID,
@@ -50,9 +55,14 @@ func NewJwtMiddleware(authRepo UserAuthRepository) *jwt.GinJWTMiddleware {
 
 			return nil, jwt.ErrFailedAuthentication
 		},
-		TokenLookup:   "header: Authorization, query: token, cookie: jwt",
-		TokenHeadName: "Bearer",
-		TimeFunc:      time.Now,
+		TokenLookup:    "header: Authorization, cookie: jwt",
+		TokenHeadName:  "Bearer",
+		TimeFunc:       time.Now,
+		SendCookie:     true,
+		SecureCookie:   false, //non HTTPS dev environments
+		CookieHTTPOnly: true,  // JS can't modify
+		CookieDomain:   "localhost",
+		CookieSameSite: http.SameSiteDefaultMode,
 	})
 
 	if err != nil {

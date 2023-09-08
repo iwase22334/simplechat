@@ -32,9 +32,10 @@ type Route struct {
 }
 
 // NewRouter returns a new router.
-func NewRouter(handleFunctions ApiHandleFunctions, mid *jwt.GinJWTMiddleware) *gin.Engine {
+func NewRouter(handleFunctions ApiHandleFunctions, mid *jwt.GinJWTMiddleware, cors CORSMiddleware) *gin.Engine {
 	router := gin.Default()
 	for _, route := range getRoutes(handleFunctions, mid) {
+		router.Use(cors.Handler)
 		if route.Middleware != nil {
 			router.Use(route.Middleware)
 		}
