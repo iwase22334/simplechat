@@ -30,9 +30,17 @@ export default function Home() {
 
   return (
     <main>
-      <div>Hello</div>
-      <ChatMessageList messages={messages} />
-      <ChatTextField createSocketRef={socketRef}/>
+      <Box
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <ChatMessageList messages={messages} />
+        <ChatTextField createSocketRef={socketRef}/>
+      </Box>
     </main>
   )
 }
