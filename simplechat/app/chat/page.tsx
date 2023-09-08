@@ -11,7 +11,7 @@ export default function Home() {
   const socketRef = useRef<WebSocket>()
 
   useEffect(() => {
-    const websocket = new WebSocket("ws://localhost:8080/1/websocket")
+    const websocket = new WebSocket("ws://localhost:8080/api/v1/1/websocket")
     socketRef.current = websocket
 
     const onMessage = (event: MessageEvent<string>) => {

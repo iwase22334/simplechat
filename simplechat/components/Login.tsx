@@ -9,17 +9,37 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
+import Alert from '@mui/material/Alert';
+import {useRouter} from 'next/navigation'
 
 export default function Login() {
+  const [loginFailed, setLoginFailed] = React.useState(false)
+  const [loggedin, setLoggedin] = React.useState(false)
+  const router = useRouter()
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      username: data.get('username'),
-      password: data.get('password'),
+
+    const body_data = {"user_id": data.get('username'), "password": data.get('password')}
+
+    fetch("http://localhost:8080/api/v1/auth/login", {
+      mode: 'cors',
+      credentials: 'include',
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body_data),
+    }).then((response)=> {
+      if (response.ok) {
+        setLoggedin(true)
+      } else {
+        setLoginFailed(true)
+      }
     });
+
   };
 
+  React.useEffect(() => { router.push('/chat') }, [loggedin])
 
   return (
     <Container maxWidth="xs">
@@ -32,9 +52,11 @@ export default function Login() {
           alignItems: 'center',
         }}
       >
+        {/*
         <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
           <LockOutlinedIcon />
         </Avatar>
+        */}
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
@@ -44,7 +66,7 @@ export default function Login() {
             required
             fullWidth
             id="username"
-            label="username"
+            label="Username"
             name="username"
             autoComplete="username"
             autoFocus
@@ -68,6 +90,10 @@ export default function Login() {
             Sign In
           </Button>
         </Box>
+        {
+          loginFailed &&
+            <Alert severity="error">Login failed!</Alert>
+        }
       </Box>
     </Container>
   );
