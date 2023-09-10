@@ -7,7 +7,7 @@ import ChatMessageList from '../../components/ChatMessageList'
 import {useEffect, useRef, useState} from 'react';
 
 export default function Home() {
-  const [messages, setMessages] = useState<string[]>(['hello', 'world'])
+  const [messages, setMessages] = useState<string[]>([])
   const socketRef = useRef<WebSocket>()
 
   useEffect(() => {
@@ -15,7 +15,7 @@ export default function Home() {
     socketRef.current = websocket
 
     const onMessage = (event: MessageEvent<string>) => {
-      console.log("message arrive", messages)
+      console.log("message arrive", event.data)
       setMessages(prevMessages => [...prevMessages, event.data])
     }
 
