@@ -12,6 +12,15 @@ type Client struct {
 	RecvQueue chan []byte
 }
 
+func NewClient(id string) *Client {
+	client := Client{
+		UserID:    id,
+		SendQueue: make(chan []byte, 64),
+		RecvQueue: make(chan []byte, 64),
+	}
+	return &client
+}
+
 type MessageQuery struct {
 	client *Client
 	data   []byte
@@ -45,6 +54,7 @@ func (c *ChatAPP) StartAPP() {
 
 		for {
 			select {
+			// Process message arrival
 			case msg := <-c.RecvAggQueue:
 				if v, ok := msg.(SimpleMessage); ok {
 					resp := append([]byte(v.client.UserID+": "), v.data...)
@@ -54,22 +64,21 @@ func (c *ChatAPP) StartAPP() {
 
 					fmt.Println("recved value: ", v)
 				}
+
+			// Process new client connection
 			case client := <-c.ConnQueue:
 				c.Clients[client] = true
-				client.RecvQueue = make(chan []byte)
-				client.SendQueue = make(chan []byte)
 				go func() {
 					for msg := range client.RecvQueue {
 						c.RecvAggQueue <- SimpleMessage{client, msg}
 					}
 					fmt.Println("foward pump exit", client)
 				}()
+
+			// Process disconnect request
 			case client := <-c.DisconnQueue:
 				if _, ok := c.Clients[client]; ok {
-					fmt.Println("closed", client)
 					delete(c.Clients, client)
-					close(client.SendQueue)
-					close(client.RecvQueue)
 				}
 			}
 		}
@@ -79,6 +88,8 @@ func (c *ChatAPP) StartAPP() {
 func (c *ChatAPP) receiver(client *Client, conn *websocket.Conn, userId string) {
 	defer func() {
 		conn.Close()
+		close(client.SendQueue)
+		close(client.RecvQueue)
 		c.DisconnQueue <- client
 	}()
 
@@ -101,10 +112,6 @@ func (c *ChatAPP) receiver(client *Client, conn *websocket.Conn, userId string) 
 }
 
 func (c *ChatAPP) sender(client *Client, conn *websocket.Conn) {
-	defer func() {
-		conn.Close()
-	}()
-
 	for {
 		fmt.Println("sender select")
 		select {
@@ -120,14 +127,10 @@ func (c *ChatAPP) sender(client *Client, conn *websocket.Conn) {
 }
 
 func (c *ChatAPP) StartWebSocketHandler(conn *websocket.Conn, userId string) {
-	client := Client{
-		UserID:    userId,
-		SendQueue: nil,
-		RecvQueue: nil,
-	}
+	client := NewClient(userId)
 
 	fmt.Println("starting service")
-	c.ConnQueue <- &client
-	go c.receiver(&client, conn, userId)
-	go c.sender(&client, conn)
+	c.ConnQueue <- client
+	go c.receiver(client, conn, userId)
+	go c.sender(client, conn)
 }
