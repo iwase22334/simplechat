@@ -39,7 +39,11 @@ export default function Login() {
 
   };
 
-  React.useEffect(() => { router.push('/chat') }, [loggedin])
+  React.useEffect(() => {
+    if (loggedin) {
+      router.push('/chat')
+    }
+  }, [loggedin])
 
   return (
     <Container maxWidth="xs">
