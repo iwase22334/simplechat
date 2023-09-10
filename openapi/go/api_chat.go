@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"net/http"
 
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -24,7 +25,7 @@ type ChatAPI struct {
 	Websocket gin.HandlerFunc
 }
 
-func WebsocketHandler() gin.HandlerFunc {
+func WebsocketHandler(chatApp *ChatAPP) gin.HandlerFunc {
 	var upgrader = websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
@@ -45,16 +46,18 @@ func WebsocketHandler() gin.HandlerFunc {
 			fmt.Println("failed to connect to server", err)
 			return
 		}
-		defer conn.Close()
-		ChatEcho(conn)
 
+		claims := jwt.ExtractClaims(c)
+		userId := claims["id"].(string)
+
+		chatApp.StartWebSocketHandler(conn, userId)
 	}
 
 	return fn
 }
 
-func NewChatAPI() ChatAPI {
+func NewChatAPI(chatApp *ChatAPP) ChatAPI {
 	return ChatAPI{
-		Websocket: WebsocketHandler(),
+		Websocket: WebsocketHandler(chatApp),
 	}
 }

@@ -23,11 +23,14 @@ func main() {
 	authRepo := sw.LocalUserAuthRepository{}
 	middleware := sw.NewJwtMiddleware(authRepo)
 	cORSMiddleware := sw.NewCORSMiddleware()
+	chatApp := sw.NewChatAPP()
+	chatApp.StartAPP()
+
 	routes := sw.ApiHandleFunctions{
 		AuthAPI: sw.AuthAPI{
 			Login: middleware.LoginHandler,
 		},
-		ChatAPI: sw.NewChatAPI(),
+		ChatAPI: sw.NewChatAPI(chatApp),
 	}
 
 	log.Printf("Server started")

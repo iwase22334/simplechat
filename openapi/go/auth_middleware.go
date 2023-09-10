@@ -1,7 +1,6 @@
 package openapi
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -25,7 +24,6 @@ func NewJwtMiddleware(authRepo UserAuthRepository) *jwt.GinJWTMiddleware {
 		MaxRefresh:  24 * time.Hour,
 		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
-			fmt.Println("PayloadFunc")
 			if v, ok := data.(*User); ok {
 				return jwt.MapClaims{
 					identityKey: v.UserID,
@@ -34,7 +32,6 @@ func NewJwtMiddleware(authRepo UserAuthRepository) *jwt.GinJWTMiddleware {
 			return jwt.MapClaims{}
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
-			fmt.Println("IdentityHandler")
 			claims := jwt.ExtractClaims(c)
 			return &User{
 				UserID: claims[identityKey].(string),
@@ -45,8 +42,6 @@ func NewJwtMiddleware(authRepo UserAuthRepository) *jwt.GinJWTMiddleware {
 			if err := c.ShouldBind(&loginVals); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
-
-			fmt.Println("Authenticator", loginVals)
 			if Authenticate(authRepo, loginVals) {
 				return &User{
 					UserID: loginVals.UserID,

@@ -6,73 +6,128 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type Client struct {
+	UserID    string
+	SendQueue chan []byte
+	RecvQueue chan []byte
+}
+
 type MessageQuery struct {
-	Data string
+	client *Client
+	data   []byte
 }
 
 type SimpleMessage struct {
-	Data string
-}
-
-type Client struct {
-	UserID    string
-	SendQueue chan string
+	client *Client
+	data   []byte
 }
 
 type ChatAPP struct {
-	Clients      []*Client
-	RecvQueue    chan string
+	Clients      map[*Client]bool
+	RecvAggQueue chan interface{}
 	ConnQueue    chan *Client
 	DisconnQueue chan *Client
 }
 
 func NewChatAPP() *ChatAPP {
 	return &ChatAPP{
-		Clients:      []*Client{},
+		Clients:      make(map[*Client]bool),
+		RecvAggQueue: make(chan interface{}),
 		ConnQueue:    make(chan *Client),
 		DisconnQueue: make(chan *Client),
 	}
 }
 
-func (c *ChatAPP) Run() {
-	for {
-		select {
-		case client := <-c.ConnQueue:
-			c.Append(client)
-		case client := <-c.DisconnQueue:
-			c.Remove(client)
+func (c *ChatAPP) StartAPP() {
+	go func() {
+		c.RecvAggQueue = make(chan interface{})
+		defer close(c.RecvAggQueue)
 
+		for {
+			select {
+			case msg := <-c.RecvAggQueue:
+				if v, ok := msg.(SimpleMessage); ok {
+					resp := append([]byte(v.client.UserID+": "), v.data...)
+					for client := range c.Clients {
+						client.SendQueue <- resp
+					}
+
+					fmt.Println("recved value: ", v)
+				}
+			case client := <-c.ConnQueue:
+				c.Clients[client] = true
+				client.RecvQueue = make(chan []byte)
+				client.SendQueue = make(chan []byte)
+				go func() {
+					for msg := range client.RecvQueue {
+						c.RecvAggQueue <- SimpleMessage{client, msg}
+					}
+					fmt.Println("foward pump exit", client)
+				}()
+			case client := <-c.DisconnQueue:
+				if _, ok := c.Clients[client]; ok {
+					fmt.Println("closed", client)
+					delete(c.Clients, client)
+					close(client.SendQueue)
+					close(client.RecvQueue)
+				}
+			}
 		}
-	}
+	}()
 }
 
-func (c *ChatAPP) Append(client *Client) {
-	c.Clients = append(c.Clients, client)
-}
+func (c *ChatAPP) receiver(client *Client, conn *websocket.Conn, userId string) {
+	defer func() {
+		conn.Close()
+		c.DisconnQueue <- client
+	}()
 
-func (c *ChatAPP) Remove(client *Client) {
-	for i, existingClient := range c.Clients {
-		if existingClient == client {
-			c.Clients = append(c.Clients[:i], c.Clients[i+1:]...)
-			break
-		}
-	}
-}
-
-func ChatEcho(conn *websocket.Conn) {
 	for {
+		fmt.Println("receiver waiting for message")
+
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {
 			fmt.Printf("err = %+v\n", err)
+			return
 		}
 
 		if messageType != websocket.TextMessage {
-			fmt.Println("Unexpected message type")
+			fmt.Println("Unexpected message type:", messageType)
+			return
 		}
 
-		fmt.Printf("p = %+v\n", p)
-		resp := append([]byte("echo: "), p...)
-
-		conn.WriteMessage(websocket.TextMessage, resp)
+		client.RecvQueue <- p
 	}
+}
+
+func (c *ChatAPP) sender(client *Client, conn *websocket.Conn) {
+	defer func() {
+		conn.Close()
+	}()
+
+	for {
+		fmt.Println("sender select")
+		select {
+		case sendMsg, ok := <-client.SendQueue:
+			if ok {
+				conn.WriteMessage(websocket.TextMessage, sendMsg)
+			} else {
+				fmt.Println("sender exit")
+				return
+			}
+		}
+	}
+}
+
+func (c *ChatAPP) StartWebSocketHandler(conn *websocket.Conn, userId string) {
+	client := Client{
+		UserID:    userId,
+		SendQueue: nil,
+		RecvQueue: nil,
+	}
+
+	fmt.Println("starting service")
+	c.ConnQueue <- &client
+	go c.receiver(&client, conn, userId)
+	go c.sender(&client, conn)
 }
