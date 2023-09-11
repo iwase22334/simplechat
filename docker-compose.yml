@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  simplechat:
+    container_name: simplechat
+    build:
+      context: ./simplechat
+      dockerfile: prod.Dockerfile
+      args:
+        ENV_VARIABLE: ${ENV_VARIABLE}
+        NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
+    restart: always
+    ports:
+      - 3000:3000
+
+  simplechat-server:
+    container_name: simplechat-server
+    build:
+      context: ./openapi
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 8080:8080
