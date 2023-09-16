@@ -16,7 +16,7 @@ services:
   simplechat-server:
     container_name: simplechat-server
     build:
-      context: ./openapi
+      context: ./backend
       dockerfile: Dockerfile
     restart: always
     ports:
