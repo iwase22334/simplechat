@@ -11,11 +11,39 @@
 package openapi
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 )
 
 type AuthAPI struct {
 	// Post /api/v1/auth/login
 	// User to login
-	Login gin.HandlerFunc
+	Login    gin.HandlerFunc
+	Register gin.HandlerFunc
+}
+
+func RegisterHandler(authRepo UserAuthRepository) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		var user UserAuth
+		if err := c.ShouldBind(&user); err != nil {
+			fmt.Println("failed to register user: ", err)
+			return
+		}
+
+		if err := Register(authRepo, user); err != nil {
+			fmt.Println("failed to register user: ", err)
+			return
+		}
+
+	}
+
+	return fn
+}
+
+func NewAuthAPI(authRepo UserAuthRepository) AuthAPI {
+	return AuthAPI{
+		Login:    nil, // provided by gin-jwt middleware. Needs to be set manually
+		Register: RegisterHandler(authRepo),
+	}
 }

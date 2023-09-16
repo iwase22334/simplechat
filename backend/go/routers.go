@@ -81,6 +81,13 @@ func getRoutes(handleFunctions ApiHandleFunctions, mid *jwt.GinJWTMiddleware) []
 			handleFunctions.AuthAPI.Login,
 		},
 		{
+			"Register",
+			http.MethodPost,
+			"/api/v1/auth/register",
+			nil,
+			handleFunctions.AuthAPI.Register,
+		},
+		{
 			"Websocket",
 			http.MethodGet,
 			"/api/v1/:room_id/websocket",

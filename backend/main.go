@@ -26,11 +26,13 @@ func main() {
 	chatApp := sw.NewChatAPP()
 	chatApp.StartAPP()
 
+	authAPI := sw.NewAuthAPI(authRepo)
+	authAPI.Login = middleware.LoginHandler
+	chatAPI := sw.NewChatAPI(chatApp)
+
 	routes := sw.ApiHandleFunctions{
-		AuthAPI: sw.AuthAPI{
-			Login: middleware.LoginHandler,
-		},
-		ChatAPI: sw.NewChatAPI(chatApp),
+		AuthAPI: authAPI,
+		ChatAPI: chatAPI,
 	}
 
 	log.Printf("Server started")
