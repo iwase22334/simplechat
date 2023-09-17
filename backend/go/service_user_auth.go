@@ -6,16 +6,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserAuthInfo struct {
-	UserId         string
-	HashedPassword string
-}
-
-type UserAuthRepository interface {
-	findHashedPasswordFromID(data string) (string, error)
-	registerUser(authInfo UserAuthInfo) error
-}
-
 func Authenticate(authRepo UserAuthRepository, userAuth UserAuth) bool {
 	hPassword, err := authRepo.findHashedPasswordFromID(userAuth.UserID)
 	if err != nil {

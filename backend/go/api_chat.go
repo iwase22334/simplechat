@@ -44,6 +44,9 @@ func WebsocketHandler(chatApp *ChatAPP) gin.HandlerFunc {
 		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 		if err != nil {
 			fmt.Println("failed to connect to server", err)
+
+			c.JSON(http.StatusBadRequest, gin.H{"message": err})
+			c.Abort()
 			return
 		}
 

@@ -12,6 +12,7 @@ package openapi
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,11 +29,17 @@ func RegisterHandler(authRepo UserAuthRepository) gin.HandlerFunc {
 		var user UserAuth
 		if err := c.ShouldBind(&user); err != nil {
 			fmt.Println("failed to register user: ", err)
+
+			c.JSON(http.StatusBadRequest, gin.H{"message": err})
+			c.Abort()
 			return
 		}
 
 		if err := Register(authRepo, user); err != nil {
 			fmt.Println("failed to register user: ", err)
+
+			c.JSON(http.StatusConflict, gin.H{"message": err})
+			c.Abort()
 			return
 		}
 
