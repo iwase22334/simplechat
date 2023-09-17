@@ -2,8 +2,8 @@
 import React from "react";
 import {Chat, Send} from '@mui/icons-material/index';
 import {Box, IconButton, TextField} from '@mui/material/index';
-import ChatTextField from '../../components/ChatTextField'
-import ChatMessageList from '../../components/ChatMessageList'
+import ChatTextField from './ChatTextField'
+import ChatMessageList from './ChatMessageList'
 import {useEffect, useRef, useState} from 'react';
 
 export default function Home() {

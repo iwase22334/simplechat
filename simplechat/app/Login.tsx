@@ -1,16 +1,15 @@
 'use client';
 
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Alert from '@mui/material/Alert';
 import {useRouter} from 'next/navigation'
+import {Grid, Link} from '@/node_modules/@mui/material/index';
 
 export default function Login() {
   const [loginFailed, setLoginFailed] = React.useState(false)
@@ -94,6 +93,13 @@ export default function Login() {
             Sign In
           </Button>
         </Box>
+        <Grid container justifyContent="flex-end">
+          <Grid item>
+            <Link href="/register" variant="body2">
+              Sign up
+            </Link>
+          </Grid>
+        </Grid>
         {
           loginFailed &&
             <Alert severity="error">Login failed!</Alert>
