@@ -33,7 +33,7 @@ func WebsocketHandler(chatApp *ChatAPP) gin.HandlerFunc {
 			origin := r.Header.Get("Origin")
 
 			fmt.Println("origin:", origin)
-			return origin == "http://localhost:3000"
+			return origin == "http://localhost:51181"
 		},
 	}
 

@@ -12,6 +12,9 @@ import {useRouter} from 'next/navigation'
 import {Grid, Link} from '@/node_modules/@mui/material/index';
 
 export default function Login() {
+  const host = process.env.WEBSOCKET_HOST || 'localhost';
+  const port = process.env.WEBSOCKET_PORT || 51180;
+
   const [loginFailed, setLoginFailed] = React.useState(false)
   const [loggedin, setLoggedin] = React.useState(false)
   const router = useRouter()
@@ -22,7 +25,7 @@ export default function Login() {
 
     const body_data = {"user_id": data.get('username'), "password": data.get('password')}
 
-    fetch("http://localhost:8080/api/v1/auth/login", {
+    fetch(`http://${host}:${port}/api/v1/auth/login`, {
       mode: 'cors',
       credentials: 'include',
       method: 'POST',

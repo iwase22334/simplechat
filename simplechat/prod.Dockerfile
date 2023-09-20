@@ -17,7 +17,6 @@ RUN \
   fi
 
 COPY app ./app
-COPY components ./components
 COPY public ./public
 COPY next.config.js .
 COPY tsconfig.json .
