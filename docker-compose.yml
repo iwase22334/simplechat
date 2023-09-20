@@ -11,7 +11,7 @@ services:
         NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
     restart: always
     ports:
-      - 3000:3000
+      - 51181:3000
 
   simplechat-server:
     container_name: simplechat-server
@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - 8080:8080
+      - 51180:8080
 
   nginx:
     image: nginx:latest
