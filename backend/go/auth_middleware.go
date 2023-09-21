@@ -3,6 +3,7 @@ package openapi
 import (
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
@@ -16,6 +17,11 @@ type User struct {
 }
 
 func NewJwtMiddleware(authRepo UserAuthRepository) *jwt.GinJWTMiddleware {
+	cookieDomain := "localhost"
+	if envCookieDomain := os.Getenv("COOKIE_DOMAIN"); envCookieDomain != "" {
+		cookieDomain = envCookieDomain
+	}
+
 	// the jwt middleware
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
@@ -56,7 +62,7 @@ func NewJwtMiddleware(authRepo UserAuthRepository) *jwt.GinJWTMiddleware {
 		SendCookie:     true,
 		SecureCookie:   false, //non HTTPS dev environments
 		CookieHTTPOnly: true,  // JS can't modify
-		CookieDomain:   "localhost",
+		CookieDomain:   cookieDomain,
 		CookieSameSite: http.SameSiteDefaultMode,
 	})
 

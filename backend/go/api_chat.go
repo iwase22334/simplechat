@@ -13,6 +13,7 @@ package openapi
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,11 @@ type ChatAPI struct {
 }
 
 func WebsocketHandler(chatApp *ChatAPP) gin.HandlerFunc {
+	allowOrigin := "http://localhost:51182"
+	if envAllowOrigin := os.Getenv("WEBSOCKET_ALLOW_ORIGIN"); envAllowOrigin != "" {
+		allowOrigin = envAllowOrigin
+	}
+
 	var upgrader = websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
@@ -33,7 +39,7 @@ func WebsocketHandler(chatApp *ChatAPP) gin.HandlerFunc {
 			origin := r.Header.Get("Origin")
 
 			fmt.Println("origin:", origin)
-			return origin == "http://localhost:51182"
+			return origin == allowOrigin
 		},
 	}
 

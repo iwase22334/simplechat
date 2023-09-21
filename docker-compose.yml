@@ -18,6 +18,11 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        ACCESS_CONTROL_ALLOW_ORIGIN: "http://localhost:51182"
+        WEBSOCKET_ALLOW_ORIGIN: "http://localhost:51182"
+        COOKIE_DOMAIN: "localhost"
+
     restart: always
     ports:
       - 51180:8080
