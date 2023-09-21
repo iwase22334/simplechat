@@ -7,8 +7,8 @@ import ChatMessageList from './ChatMessageList'
 import {useEffect, useRef, useState} from 'react';
 
 export default function Home() {
-  const host = process.env.WEBSOCKET_HOST || 'localhost';
-  const port = process.env.WEBSOCKET_PORT || 51180;
+  const host = process.env.NEXT_PUBLIC_WEBSOCKET_HOST || 'localhost';
+  const port = process.env.NEXT_PUBLIC_WEBSOCKET_PORT || 51180;
 
   const [messages, setMessages] = useState<string[]>([])
   const socketRef = useRef<WebSocket>()

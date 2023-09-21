@@ -17,8 +17,8 @@ const MinUserNameLength = 3;
 const MaxUserNameLength = 16;
 
 export default function Login() {
-  const host = process.env.WEBSOCKET_HOST || 'localhost';
-  const port = process.env.WEBSOCKET_PORT || 51180;
+  const host = process.env.NEXT_PUBLIC_WEBSOCKET_HOST || 'localhost';
+  const port = process.env.NEXT_PUBLIC_WEBSOCKET_PORT || 51180;
 
   const [registerFailed, setRegisterFailed] = React.useState(false)
   const [passwordMismatch, setPasswordMismatch] = React.useState(false)

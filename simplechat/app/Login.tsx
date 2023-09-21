@@ -12,8 +12,8 @@ import {useRouter} from 'next/navigation'
 import {Grid, Link} from '@/node_modules/@mui/material/index';
 
 export default function Login() {
-  const host = process.env.WEBSOCKET_HOST || 'localhost';
-  const port = process.env.WEBSOCKET_PORT || 51180;
+  const host = process.env.NEXT_PUBLIC_WEBSOCKET_HOST || 'localhost';
+  const port = process.env.NEXT_PUBLIC_WEBSOCKET_PORT || 51180;
 
   const [loginFailed, setLoginFailed] = React.useState(false)
   const [loggedin, setLoggedin] = React.useState(false)
