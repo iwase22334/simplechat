@@ -18,7 +18,7 @@ docker compose up
 
 ### Accessing service
 
-:3000ポートにアクセス
+:51182ポートにアクセス
 
 - ユーザ名: user1
 - パスワード: strong_password
